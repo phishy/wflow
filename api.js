@@ -8,6 +8,7 @@ const fileExists = require("file-exists");
 const findFreePorts = require("find-free-ports");
 const Datastore = require("nedb-promises");
 const dotenv = require('dotenv');
+const fs = require('fs');
 
 const app = express();
 const port = 3000;
@@ -109,11 +110,7 @@ async function checkSchedule(workflowId) {
   let jobs = await db.jobs.find({ workflow: workflowId, status: "waiting" });
   for (let jobIndex in jobs) {
     var needsCompleted = 0;
-    if ('needs' in jobs[jobIndex]) {
-      var needsNeeded = 0;
-    } else {
-      var needsNeeded = jobs[jobIndex].needs.length;
-    }
+    var needsNeeded = jobs[jobIndex].needs.length;
     for (let stepIndex in jobs[jobIndex].needs) {
       let stepId = jobs[jobIndex].needs[stepIndex];
       let job = await db.jobs.find({
