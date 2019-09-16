@@ -21,7 +21,6 @@ logger.fav("Let's go!");
 
 if (!which.sync("docker", { nothrow: true })) {
   logger.error("Docker needs to be installed");
-  // ora("Docker needs to be installed").fail();
   process.exit(1);
 }
 
@@ -31,8 +30,7 @@ if (!which.sync("npx", { nothrow: true })) {
 }
 
 if (!argv.file) {
-  logger.error("Please specify a workflow file");
-  process.exit(1);
+  argv.file = './workflows/needs.yml';
 }
 
 // MAIN
