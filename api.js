@@ -4,10 +4,10 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const logger = require("signale");
 const runJob = require("./lib/job");
-const envfile = require("envfile");
 const fileExists = require("file-exists");
 const findFreePorts = require("find-free-ports");
 const Datastore = require("nedb-promises");
+const dotenv = require('dotenv');
 
 const app = express();
 const port = 3000;
@@ -139,7 +139,8 @@ async function submitJob(jobId) {
 
   var secrets;
   if (fileExists.sync("./secrets.env")) {
-    secrets = envfile.parseFileSync("./secrets.env");
+    const buf = Buffer.from(fs.readFileSync("./secrets.env"));
+    secrets = dotenv.parse(buf);
   }
 
   let ports = await findFreePorts(job.steps.length);
