@@ -9,6 +9,7 @@ const findFreePorts = require("find-free-ports");
 const Datastore = require("nedb-promises");
 const dotenv = require('dotenv');
 const fs = require('fs');
+const tempDirectory = require("temp-dir");
 
 const app = express();
 const port = 3000;
@@ -16,9 +17,9 @@ app.use(cors());
 app.use(bodyParser.json());
 
 let db = {};
-db.runs = Datastore.create("./data/runs.db");
-db.jobs = Datastore.create("./data/jobs.db");
-db.steps = Datastore.create("./data/steps.db");
+db.runs = Datastore.create(`${tempDirectory}/wflow/data/runs.db`);
+db.jobs = Datastore.create(`${tempDirectory}/wflow/data/jobs.db`);
+db.steps = Datastore.create(`${tempDirectory}/wflow/data/steps.db`);
 
 app.post("/runs", async (req, res) => {
   var workflow = req.body;
