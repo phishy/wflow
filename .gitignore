@@ -1,0 +1,4 @@
+*.env
+event.json
+workspaces
+node_modules
