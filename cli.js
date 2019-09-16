@@ -102,6 +102,8 @@ async function main() {
     if (fileExists.sync("./secrets.env")) {
       const buf = Buffer.from(fs.readFileSync('./secrets.env'));
       secrets = dotenv.parse(buf);
+    } else {
+      logger.warn('COULD NOT FIND SECRETS.ENV');
     }
   } catch (e) {
     logger.error(`Failed to parse secrets in ./secrets.env`);
