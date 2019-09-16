@@ -1,5 +1,3 @@
-![Workflow](workflow.png)
-
 ![](screenshot.png)
 
 ## Requirements
