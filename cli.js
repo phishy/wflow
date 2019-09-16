@@ -44,7 +44,7 @@ if (!argv.file) {
 // MAIN
 async function main() {
 
-  // await ui.start();
+  await ui.start();
   await api.start();
 
   if (!argv.event) {
