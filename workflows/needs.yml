@@ -9,6 +9,8 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - run: echo Step 1
+      env:
+        # HI: ${{ secrets.HI }}
   job2:
     runs-on: ubuntu-latest
     needs: ['job1']

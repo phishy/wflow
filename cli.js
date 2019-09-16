@@ -11,6 +11,7 @@ const git = require("async-git");
 const logger = require("signale");
 const axios = require("axios");
 const dotenv = require("dotenv");
+const searchhash = require("searchhash");
 
 const ui = require("./ui");
 const api = require("./api");
@@ -18,8 +19,8 @@ const runJob = require("./lib/job");
 const Workflow = require("./lib/workflow");
 
 var config = {
-  api: 'http://localhost:3000',
-  ui: 'http://localhost:3001'
+  api: "http://localhost:3000",
+  ui: "http://localhost:3001"
 };
 
 if (!which.sync("docker", { nothrow: true })) {
@@ -34,16 +35,15 @@ if (!which.sync("npx", { nothrow: true })) {
 
 if (!argv.file) {
   if (fileExists.sync("./workflows/needs.yml")) {
-    argv.file = './workflows/needs.yml';
-  } else{
-    logger.error('Please specify a workflow with --file');
+    argv.file = "./workflows/needs.yml";
+  } else {
+    logger.error("Please specify a workflow with --file");
     process.exit(1);
   }
 }
 
 // MAIN
 async function main() {
-
   await ui.start();
   await api.start();
 
@@ -78,6 +78,21 @@ async function main() {
 
   try {
     var yamlWorkflow = yaml.safeLoad(fs.readFileSync(argv.file, "utf8"));
+
+    // check to see if you're referencing secrets but have no secrets.env file
+    if (!fileExists.sync("./secrets.env")) {
+      let found = searchhash.forKey(yamlWorkflow, "env");
+      found.results.forEach(res => {
+        for (let key in res.value) {
+          if (res.value[key].indexOf("secrets.") >= 0) {
+            logger.error(
+              "Your workflow requires secrets. Please create a secrets.env file"
+            );
+            process.exit(1);
+          }
+        }
+      });
+    }
   } catch (e) {
     logger.error(`Failed to parse workflow yaml for ${argv.file}`);
     logger.error(e);
@@ -100,10 +115,8 @@ async function main() {
   try {
     var secrets;
     if (fileExists.sync("./secrets.env")) {
-      const buf = Buffer.from(fs.readFileSync('./secrets.env'));
+      const buf = Buffer.from(fs.readFileSync("./secrets.env"));
       secrets = dotenv.parse(buf);
-    } else {
-      logger.warn('COULD NOT FIND SECRETS.ENV');
     }
   } catch (e) {
     logger.error(`Failed to parse secrets in ./secrets.env`);
