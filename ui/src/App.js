@@ -4,7 +4,7 @@ import axios from "axios";
 import "antd/dist/antd.css";
 import "./App.css";
 
-var baseURL = 'http://localhost:3000';
+var baseURL = "http://localhost:3000";
 
 const socket = require("socket.io-client")(baseURL);
 const { SubMenu } = Menu;
@@ -107,7 +107,7 @@ function App() {
             >
               {Object.keys(run.jobs).map(jobName => (
                 <SubMenu
-                  key="sub1"
+                  key={run.jobs[jobName].name || jobName}
                   title={
                     <span>
                       {run.jobs[jobName].status != "complete" ? (

@@ -114,7 +114,9 @@ app.post("/steps", async (req, res) => {
 
 app.patch("/steps/:id", async (req, res) => {
   let stepId = req.params.id;
+  let step = await db.steps.findOne({ _id: stepId });
   await db.steps.update({ _id: stepId }, { $set: req.body });
+  io.emit("update", await getRun(step.workflow));
   updateJobStatus(stepId);
   res.sendStatus(200);
 });
@@ -127,7 +129,7 @@ async function updateJobStatus(stepId) {
   let step = await db.steps.findOne({ _id: stepId });
   let steps = await db.steps.find({ job: step.job });
   if (_.every(steps, { status: "complete" })) {
-    logger.info("Job completed");
+    logger.success("Job completed");
     await db.jobs.update({ _id: step.job }, { $set: { status: "complete" } });
     io.emit('update', await getRun(step.workflow));
     checkSchedule(step.workflow);
