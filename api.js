@@ -1,9 +1,5 @@
 const _ = require("lodash");
-const express = require("express");
-const bodyParser = require("body-parser");
-const cors = require("cors");
 const logger = require("signale");
-const runJob = require("./lib/job");
 const fileExists = require("file-exists");
 const findFreePorts = require("find-free-ports");
 const Datastore = require("nedb-promises");
@@ -11,8 +7,13 @@ const dotenv = require('dotenv');
 const fs = require('fs');
 const tempDirectory = require("temp-dir");
 
-const app = express();
-const port = 3000;
+const runJob = require("./lib/job");
+
+var app = require("express")();
+var http = require("http").createServer(app);
+var io = require("socket.io")(http);
+const cors = require("cors");
+const bodyParser = require("body-parser");
 app.use(cors());
 app.use(bodyParser.json());
 
@@ -20,6 +21,10 @@ let db = {};
 db.runs = Datastore.create(`${tempDirectory}/wflow/data/runs.db`);
 db.jobs = Datastore.create(`${tempDirectory}/wflow/data/jobs.db`);
 db.steps = Datastore.create(`${tempDirectory}/wflow/data/steps.db`);
+
+app.get('/', (req, res)=>{
+  res.send('Hello!');
+});
 
 app.post("/runs", async (req, res) => {
   var workflow = req.body;
@@ -52,11 +57,13 @@ app.post("/runs", async (req, res) => {
         uses: step.uses,
         run: step.run,
         env: step.env,
-        port: step.port
+        port: step.port,
+        realtime: step.realtime
       });
       step._id = sRes._id;
     }
   }
+  io.emit("update", await getRun(workflow._id));
   res.send(workflow);
 });
 
@@ -66,8 +73,27 @@ app.patch("/runs/:id", async (req, res) => {
 });
 
 app.get("/runs/:id", async (req, res) => {
-  res.send(await db.runs.findOne({ _id: req.params.id }));
+  let run = await getRun(req.params.id);
+  res.send(run);
 });
+
+/**
+ * Re-assembles a run from its component records. Think ORM.
+ *
+ * @param {*} id
+ */
+async function getRun(id) {
+  let run = await db.runs.findOne({ _id: id });
+  run.jobs = {};
+  let jobs = await db.jobs.find({ workflow: run._id });
+  for(let jobKey in jobs) {
+    let job = jobs[jobKey];
+    let steps = await db.steps.find({ job: job._id });
+    job.steps = steps;
+    run.jobs[job.id] = job;
+  }
+  return run;
+}
 
 app.post("/jobs", async (req, res) => {
   res.send(await db.jobs.insert(req.body));
@@ -103,6 +129,7 @@ async function updateJobStatus(stepId) {
   if (_.every(steps, { status: "complete" })) {
     logger.info("Job completed");
     await db.jobs.update({ _id: step.job }, { $set: { status: "complete" } });
+    io.emit('update', await getRun(step.workflow));
     checkSchedule(step.workflow);
   }
 }
@@ -149,8 +176,8 @@ async function submitJob(jobId) {
 module.exports = {
   start: () =>
     new Promise((resolve, reject) => {
-      app.listen(port, () => {
-        logger.start(`Workflow API listening on port ${port}!`);
+      http.listen(3000, () => {
+        logger.start(`Workflow API listening on port 3000!`);
         resolve();
       });
     })

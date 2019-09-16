@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
+import { Layout, Menu, PageHeader, Icon } from "antd";
+import axios from "axios";
 import "antd/dist/antd.css";
 import "./App.css";
 
-import axios from "axios";
+var baseURL = 'http://localhost:3000';
 
-import { Layout, Menu, PageHeader, Icon } from "antd";
-
+const socket = require("socket.io-client")(baseURL);
 const { SubMenu } = Menu;
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -29,20 +30,23 @@ function App() {
     }
   });
 
-  useEffect(() => {
-    axios.get(`http://localhost:3000${window.location.pathname}`).then(res => {
-      let run = res.data;
+  function updateScroll() {
+    var element = document.getElementById("content");
+    element.scrollTop = element.scrollHeight;
+  }
 
+  useEffect(() => {
+    socket.on("update", run => {
+      setRun(run);
+    });
+
+    axios.get(`${baseURL}${window.location.pathname}`).then(res => {
+      let run = res.data;
       console.log(run);
 
       for (var jobName in run.jobs) {
         run.jobs[jobName].steps.forEach(step => {
           try {
-            function updateScroll() {
-              var element = document.getElementById("content");
-              element.scrollTop = element.scrollHeight;
-            }
-
             function connect() {
               step.ws = new WebSocket(step.realtime);
               step.ws.onmessage = function(event) {
@@ -63,7 +67,7 @@ function App() {
             }
             connect();
           } catch (e) {
-            debugger;
+            console.log(e);
           }
         });
       }
@@ -86,11 +90,7 @@ function App() {
           mode="horizontal"
           defaultSelectedKeys={["2"]}
           style={{ lineHeight: "64px" }}
-        >
-          {/* <Menu.Item key="1">nav 1</Menu.Item>
-          <Menu.Item key="2">nav 2</Menu.Item>
-          <Menu.Item key="3">nav 3</Menu.Item> */}
-        </Menu>
+        ></Menu>
       </Header>
       <Content style={{ padding: "0 50px" }}>
         <PageHeader
@@ -110,18 +110,26 @@ function App() {
                   key="sub1"
                   title={
                     <span>
-                      <Icon type="sync" spin />
-                      <b>{run.jobs[jobName].name || jobName }</b>
+                      {run.jobs[jobName].status != "complete" ? (
+                        <Icon type="sync" spin />
+                      ) : (
+                        <Icon
+                          type="check-circle"
+                          theme="twoTone"
+                          twoToneColor="#52c41a"
+                        />
+                      )}
+                      <b>{run.jobs[jobName].name || jobName}</b>
                     </span>
                   }
                 >
                   {run.jobs[jobName].steps.map(step => (
                     <Menu.Item key={step.uses || step.name || step.run}>
-                      <Icon
-                        type="check-circle"
-                        theme="twoTone"
-                        twoToneColor="#52c41a"
-                      />
+                      {step.status == "complete" ? (
+                        <Icon type="check-circle" theme="filled" />
+                      ) : (
+                        <Icon type="sync" spin />
+                      )}
                       {step.uses || step.name || step.run}
                     </Menu.Item>
                   ))}

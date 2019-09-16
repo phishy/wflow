@@ -17,6 +17,11 @@ const api = require("./api");
 const runJob = require("./lib/job");
 const Workflow = require("./lib/workflow");
 
+var config = {
+  api: 'http://localhost:3000',
+  ui: 'http://localhost:3001'
+};
+
 if (!which.sync("docker", { nothrow: true })) {
   logger.error("Docker needs to be installed");
   process.exit(1);
@@ -39,7 +44,7 @@ if (!argv.file) {
 // MAIN
 async function main() {
 
-  await ui.start();
+  // await ui.start();
   await api.start();
 
   if (!argv.event) {
@@ -72,14 +77,22 @@ async function main() {
   var workflow;
 
   try {
-    var config = yaml.safeLoad(fs.readFileSync(argv.file, "utf8"));
-    config.event = event;
-    workflow = new Workflow(config);
-    await workflow.init();
-    run = await axios.post("http://localhost:3000/runs", workflow.data);
-    // console.log(run.data);
+    var yamlWorkflow = yaml.safeLoad(fs.readFileSync(argv.file, "utf8"));
   } catch (e) {
     logger.error(`Failed to parse workflow yaml for ${argv.file}`);
+    logger.error(e);
+    process.exit(1);
+  }
+
+  try {
+    yamlWorkflow.event = event;
+    workflow = new Workflow(yamlWorkflow);
+    await workflow.init();
+    console.log(JSON.stringify(workflow.data));
+    run = await axios.post(`${config.api}/runs`, workflow.data);
+    // console.log(run.data);
+  } catch (e) {
+    logger.error(`Failed to contact API`);
     logger.error(e);
     process.exit(1);
   }
@@ -96,7 +109,7 @@ async function main() {
     process.exit(1);
   }
 
-  open(`http://localhost:3001/runs/${run.data._id}`);
+  open(`${config.ui}/runs/${run.data._id}`);
 
   // submit jobs with no dependencies
   for (let jobName in run.data.jobs) {
