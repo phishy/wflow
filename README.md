@@ -1,6 +1,6 @@
-# Workflow
+![Workflow](workflow.png)
 
-*Do things locally.*
+*Run GitHub Actions locally.*
 
 
 ## Requirements
@@ -39,6 +39,8 @@ When you run the `wflow`, it spins up a lightweight API and UI server. It reads 
 * `jobs.<job_id>.needs`
 * `jobs.<job_id>.runs-on` (ubuntu-latest only)
 * `jobs.<job_id>.steps`
+
+Currently only Docker-based actions are supported. PRs welcome for JavaScript-based actions.
 
 
 ### Not yet supported
