@@ -12,9 +12,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: ['job1']
     steps:
-    - run: echo Step2
+    - run: echo Step 2
   job3:
     runs-on: ubuntu-latest
     needs: ['job1', 'job2']
     steps:
-    - run: echo Step3
+    - run: echo Step 3
