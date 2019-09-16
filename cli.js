@@ -17,8 +17,6 @@ const api = require("./api");
 const runJob = require("./lib/job");
 const Workflow = require("./lib/workflow");
 
-logger.fav("Let's go!");
-
 if (!which.sync("docker", { nothrow: true })) {
   logger.error("Docker needs to be installed");
   process.exit(1);
@@ -30,7 +28,12 @@ if (!which.sync("npx", { nothrow: true })) {
 }
 
 if (!argv.file) {
-  argv.file = './workflows/needs.yml';
+  if (fileExists.sync("./workflows/needs.yml")) {
+    argv.file = './workflows/needs.yml';
+  } else{
+    logger.error('Please specify a workflow with --file');
+    process.exit(1);
+  }
 }
 
 // MAIN
