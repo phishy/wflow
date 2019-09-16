@@ -13,6 +13,10 @@ The following installs dependencies in `node_modules` and links `wflow` to work 
 
 ## Usage
 
+`wflow`
+
+Running that should give you a preview of how it works, however likely you'll want to specify a workflow file.
+
 Point wflow at a valid yaml file. You may also specify an event (a GitHub webhook payload). If you do not provide an event, it attempts to read from .git.
 
 `wflow --file build.yml --event event.json`
