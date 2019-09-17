@@ -1,5 +1,7 @@
 ![](screenshot.png)
 
+[![Join the chat at https://gitter.im/wflow-local/community](https://badges.gitter.im/wflow-local/community.svg)](https://gitter.im/wflow-local/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ## Requirements
 
 * Docker
