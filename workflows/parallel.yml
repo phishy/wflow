@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - run: while true; do foo; sleep 2; done
+    - run: echo Step 1
       env:
         # HI: ${{ secrets.HI }}
   job2:

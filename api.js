@@ -132,7 +132,22 @@ async function updateJobStatus(stepId) {
     logger.success("Job completed");
     await db.jobs.update({ _id: step.job }, { $set: { status: "complete" } });
     io.emit('update', await getRun(step.workflow));
+    updateRunStatus(step.workflow);
     checkSchedule(step.workflow);
+  }
+}
+
+async function updateRunStatus(runId) {
+  let jobs = await db.jobs.find({ workflow: runId });
+  let complete = 0;
+  jobs.forEach(job => {
+    if (job.status == "complete") {
+      complete++;
+    }
+  });
+  if (complete == jobs.length) {
+    await db.runs.update({ _id: runId }, { $set: { status: "complete " } });
+    io.emit("update", await getRun(runId));
   }
 }
 
