@@ -37,6 +37,7 @@ function App() {
 
   useEffect(() => {
     socket.on("update", run => {
+      console.log(run);
       setRun(run);
     });
 
@@ -76,15 +77,19 @@ function App() {
     });
   }, []);
 
+  var sockets = {};
+
   function loadContent(step) {
-    console.log(step);
-    if (step.ws) {
-      step.ws.close();
+    for(let id in sockets) {
+      sockets[id].close();
+      delete sockets[id];
     }
+    console.log(sockets);
     let content = document.getElementById("content");
     content.innerText = "";
-    step.ws = new WebSocket(step.realtime);
-    step.ws.onmessage = function(event) {
+    sockets[step._id] = new WebSocket(step.realtime);
+    sockets[step._id].onmessage = function(event) {
+      console.log(event);
       content.append(event.data);
       updateScroll();
     };
