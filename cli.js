@@ -18,6 +18,16 @@ const api = require("./api");
 const runJob = require("./lib/job");
 const Workflow = require("./lib/workflow");
 
+/**
+ * Catching SIGINT ensures that we don't leave zombie docker containers.
+ */
+process.on("SIGINT", async function() {
+  logger.pending('Shutting down...');
+  await execa.sync('set -e docker kill $(docker ps -q --filter "ancestor=phishy/wflow-ubuntu-latest") || true', { shell: true });
+  logger.success('Thanks for using Workflow!');
+  process.exit();
+});
+
 var config = {
   api: "http://localhost:3000",
   ui: "http://localhost:3001"
