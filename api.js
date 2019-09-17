@@ -148,6 +148,7 @@ async function updateRunStatus(runId) {
   });
   if (complete == jobs.length) {
     await db.runs.update({ _id: runId }, { $set: { status: "complete " } });
+    logger.info(`Run completed: ${runId}`);
     io.emit("update", await getRun(runId));
   }
 }
