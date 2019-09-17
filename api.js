@@ -52,7 +52,7 @@ app.post("/runs", async (req, res) => {
       var sRes = await db.steps.insert({
         workflow: wRes._id,
         job: jRes._id,
-        status: "incomplete",
+        status: "waiting",
         name: step.name,
         uses: step.uses,
         run: step.run,

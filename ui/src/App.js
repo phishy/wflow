@@ -44,37 +44,55 @@ function App() {
       let run = res.data;
       console.log(run);
 
-      for (var jobName in run.jobs) {
-        run.jobs[jobName].steps.forEach(step => {
-          try {
-            function connect() {
-              step.ws = new WebSocket(step.realtime);
-              step.ws.onmessage = function(event) {
-                console.log(event.data);
-                let content = document.getElementById("content");
-                content.append(event.data);
-                updateScroll();
-              };
-              step.ws.onclose = function(e) {
-                console.log(
-                  "Socket is closed. Reconnect will be attempted in 1 second.",
-                  e.reason
-                );
-                setTimeout(function() {
-                  connect();
-                }, 1000);
-              };
-            }
-            connect();
-          } catch (e) {
-            console.log(e);
-          }
-        });
-      }
+      // for (var jobName in run.jobs) {
+      //   run.jobs[jobName].steps.forEach(step => {
+      //     try {
+      //       function connect() {
+      //         step.ws = new WebSocket(step.realtime);
+      //         step.ws.onmessage = function(event) {
+      //           console.log(event.data);
+      //           let content = document.getElementById("content");
+      //           content.append(event.data);
+      //           updateScroll();
+      //         };
+      //         step.ws.onclose = function(e) {
+      //           console.log(
+      //             "Socket is closed. Reconnect will be attempted in 1 second.",
+      //             e.reason
+      //           );
+      //           setTimeout(function() {
+      //             connect();
+      //           }, 1000);
+      //         };
+      //       }
+      //       connect();
+      //     } catch (e) {
+      //       console.log(e);
+      //     }
+      //   });
+      // }
 
       setRun(res.data);
     });
   }, []);
+
+  function loadContent(step) {
+    console.log(step);
+    if (step.ws) {
+      step.ws.close();
+    }
+    let content = document.getElementById("content");
+    content.innerText = "";
+    step.ws = new WebSocket(step.realtime);
+    step.ws.onmessage = function(event) {
+      content.append(event.data);
+      updateScroll();
+    };
+  }
+
+  let content = (
+    <div></div>
+  )
 
   return (
     <Layout>
@@ -110,25 +128,44 @@ function App() {
                   key={run.jobs[jobName].name || jobName}
                   title={
                     <span>
-                      {run.jobs[jobName].status != "complete" ? (
+                      {run.jobs[jobName].status === "complete" ? (
+                        <Icon type="check-circle" theme="filled" />
+                      ) : (
+                        ""
+                      )}
+                      {run.jobs[jobName].status === "waiting" ? (
+                        <Icon type="small-dash" />
+                      ) : (
+                        ""
+                      )}
+                      {run.jobs[jobName].status === "incomplete" ? (
                         <Icon type="sync" spin />
                       ) : (
-                        <Icon
-                          type="check-circle"
-                          theme="twoTone"
-                          twoToneColor="#52c41a"
-                        />
+                        ""
                       )}
                       <b>{run.jobs[jobName].name || jobName}</b>
                     </span>
                   }
                 >
                   {run.jobs[jobName].steps.map(step => (
-                    <Menu.Item key={step.uses || step.name || step.run}>
-                      {step.status == "complete" ? (
+                    <Menu.Item
+                      key={step.uses || step.name || step.run}
+                      onClick={ev => loadContent(step)}
+                    >
+                      {step.status === "complete" ? (
                         <Icon type="check-circle" theme="filled" />
                       ) : (
+                        ""
+                      )}
+                      {step.status === "waiting" ? (
+                        <Icon type="small-dash" />
+                      ) : (
+                        ""
+                      )}
+                      {step.status === "incomplete" ? (
                         <Icon type="sync" spin />
+                      ) : (
+                        ""
                       )}
                       {step.uses || step.name || step.run}
                     </Menu.Item>
@@ -150,7 +187,9 @@ function App() {
               overflow: "scroll",
               height: "500px"
             }}
-          ></Content>
+          >
+            {content}
+          </Content>
         </Layout>
       </Content>
       <Footer style={{ textAlign: "center" }}>©2019 @phishy</Footer>
