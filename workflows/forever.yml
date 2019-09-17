@@ -8,16 +8,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - run: while true; do foo; sleep 2; done
+    - run: while true; do Step1; sleep 2; done
       env:
         # HI: ${{ secrets.HI }}
   job2:
     runs-on: ubuntu-latest
-    needs: ['job1']
     steps:
-    - run: echo Step 2
+    - run: while true; do Step2; sleep 2; done
   job3:
     runs-on: ubuntu-latest
-    needs: ['job1', 'job2']
     steps:
-    - run: echo Step 3
+    - run: while true; do Step3; sleep 2; done
