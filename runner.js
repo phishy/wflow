@@ -11,6 +11,8 @@ const axios = require("axios");
 const dotenv = require("dotenv");
 const searchhash = require("searchhash");
 const which = require("which");
+const tempDirectory = require("temp-dir");
+const rimraf = require('rimraf');
 
 const ui = require("./ui");
 const api = require("./api");
@@ -22,10 +24,16 @@ const Workflow = require("./lib/workflow");
  */
 process.on("SIGINT", async function() {
   logger.pending("Shutting down...");
+
+  // attempts to cleanup docker containers
   await execa.sync(
     'docker kill $(docker ps -q --filter "label=wflow") || true',
     { shell: true }
   );
+
+  // removes all data from workspaces
+  rimraf.sync(`${tempDirectory}/wflow`);
+
   logger.success("Thanks for using Workflow!");
   process.exit();
 });
