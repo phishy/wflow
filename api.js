@@ -45,6 +45,7 @@ app.post("/runs", async (req, res) => {
       "runs-on": job["runs-on"]
     });
     job._id = jRes._id;
+    job.id = jRes.id;
     job.run = wRes._id;
 
     for (let key in workflow.jobs[jobId].steps) {
