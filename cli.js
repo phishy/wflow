@@ -23,7 +23,7 @@ const Workflow = require("./lib/workflow");
  */
 process.on("SIGINT", async function() {
   logger.pending('Shutting down...');
-  await execa.sync('set -e docker kill $(docker ps -q --filter "ancestor=phishy/wflow-ubuntu-latest") || true', { shell: true });
+  await execa.sync('docker kill $(docker ps -q --filter "label=wflow") || true', { shell: true });
   logger.success('Thanks for using Workflow!');
   process.exit();
 });
