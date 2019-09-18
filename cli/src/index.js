@@ -36,7 +36,8 @@ CliCommand.flags = {
   help: flags.help({ char: "h" }),
   file: flags.string({ char: "f", description: "Path to workflow.yml" }),
   job: flags.string({ char: "j", description: "Name of isolated job from the worlkflow to run" }),
-  event: flags.string({ char: "e", description: "Path to event.json" })
+  event: flags.string({ char: "e", description: "Path to event.json" }),
+  dev: flags.boolean({ char: "d", description: "Starts the stack in dev mode" })
 };
 
 module.exports = CliCommand;

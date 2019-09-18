@@ -20,6 +20,9 @@ const api = require("./api");
 const runJob = require("./lib/job");
 const Workflow = require("./lib/workflow");
 
+/**
+ * Configuration
+ */
 var config = {
   api: "http://localhost:3000",
   ui: "http://localhost:3001"
@@ -61,6 +64,11 @@ async function shutdown() {
   process.exit();
 }
 
+/**
+ * This is the meat and potatoes
+ *
+ * @param {*} flags
+ */
 async function runner(flags) {
   if (!which.sync("docker", { nothrow: true })) {
     logger.error("Docker needs to be installed");
@@ -81,7 +89,10 @@ async function runner(flags) {
     }
   }
 
-  // await ui.start();
+  if (!flags.dev) {
+    await ui.start();
+  }
+
   await api.start();
 
   if (!flags.event) {
