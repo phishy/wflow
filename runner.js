@@ -12,17 +12,40 @@ const dotenv = require("dotenv");
 const searchhash = require("searchhash");
 const which = require("which");
 const tempDirectory = require("temp-dir");
-const rimraf = require('rimraf');
+const rimraf = require("rimraf");
+const socket = require("socket.io-client");
 
 const ui = require("./ui");
 const api = require("./api");
 const runJob = require("./lib/job");
 const Workflow = require("./lib/workflow");
 
+var config = {
+  api: "http://localhost:3000",
+  ui: "http://localhost:3001"
+};
+
 /**
- * Catching SIGINT ensures that we don't leave zombie docker containers.
+ * Terminates the CLI when the job is complete
+ */
+let socketClient = new socket(config.api);
+socketClient.on("update", function(run) {
+  if (run.status == 'complete') {
+    shutdown();
+  }
+});
+
+/**
+ * Terminates the CLI on SIGINT
  */
 process.on("SIGINT", async function() {
+  shutdown();
+});
+
+/**
+ * Cleans up docker containers, deletes workspaces, and exits.
+ */
+async function shutdown() {
   logger.pending("Shutting down...");
 
   // attempts to cleanup docker containers
@@ -36,12 +59,7 @@ process.on("SIGINT", async function() {
 
   logger.success("Thanks for using Workflow!");
   process.exit();
-});
-
-var config = {
-  api: "http://localhost:3000",
-  ui: "http://localhost:3001"
-};
+}
 
 async function runner(flags) {
   if (!which.sync("docker", { nothrow: true })) {
