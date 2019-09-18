@@ -157,7 +157,7 @@ async function checkSchedule(workflowId) {
   let jobs = await db.jobs.find({ workflow: workflowId, status: "waiting" });
   for (let jobIndex in jobs) {
     var needsCompleted = 0;
-    var needsNeeded = jobs[jobIndex].needs.length;
+    var needsNeeded = (jobs[jobIndex].needs) ? jobs[jobIndex].needs.length : 0;
     for (let stepIndex in jobs[jobIndex].needs) {
       let stepId = jobs[jobIndex].needs[stepIndex];
       let job = await db.jobs.find({

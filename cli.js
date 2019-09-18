@@ -22,9 +22,12 @@ const Workflow = require("./lib/workflow");
  * Catching SIGINT ensures that we don't leave zombie docker containers.
  */
 process.on("SIGINT", async function() {
-  logger.pending('Shutting down...');
-  await execa.sync('docker kill $(docker ps -q --filter "label=wflow") || true', { shell: true });
-  logger.success('Thanks for using Workflow!');
+  logger.pending("Shutting down...");
+  await execa.sync(
+    'docker kill $(docker ps -q --filter "label=wflow") || true',
+    { shell: true }
+  );
+  logger.success("Thanks for using Workflow!");
   process.exit();
 });
 
@@ -44,8 +47,8 @@ if (!which.sync("npx", { nothrow: true })) {
 }
 
 if (!argv.file) {
-  if (fileExists.sync("./workflows/needs.yml")) {
-    argv.file = "./workflows/needs.yml";
+  if (fileExists.sync("./workflows/parallel.yml")) {
+    argv.file = "./workflows/parallel.yml";
   } else {
     logger.error("Please specify a workflow with --file");
     process.exit(1);
@@ -113,7 +116,6 @@ async function main() {
     yamlWorkflow.event = event;
     workflow = new Workflow(yamlWorkflow);
     await workflow.init();
-    console.log(JSON.stringify(workflow.data));
     run = await axios.post(`${config.api}/runs`, workflow.data);
     // console.log(run.data);
   } catch (e) {
@@ -134,14 +136,22 @@ async function main() {
     process.exit(1);
   }
 
-  open(`${config.ui}/runs/${run.data._id}`);
-
-  // submit jobs with no dependencies
-  for (let jobName in run.data.jobs) {
-    if (!("needs" in run.data.jobs[jobName])) {
-      runJob(run.data, secrets, run.data.jobs[jobName], workflow.ports);
+  if (argv.job) {
+    if (!(argv.job in run.data.jobs)) {
+      logger.error(`Could not find ${argv.job} in workflow`);
+      process.exit(1);
+    }
+    runJob(run.data, secrets, run.data.jobs[argv.job], workflow.ports);
+  } else {
+    // submit jobs with no dependencies
+    for (let jobName in run.data.jobs) {
+      if (!("needs" in run.data.jobs[jobName])) {
+        runJob(run.data, secrets, run.data.jobs[jobName], workflow.ports);
+      }
     }
   }
+
+  open(`${config.ui}/runs/${run.data._id}`);
 }
 
 main();
