@@ -1,10 +1,8 @@
 #!/usr/bin/env node
 
-const argv = require("yargs").argv;
 const yaml = require("js-yaml");
 const fs = require("fs");
 const fileExists = require("file-exists");
-const which = require("which");
 const open = require("open");
 const execa = require("execa");
 const git = require("async-git");
@@ -12,6 +10,7 @@ const logger = require("signale");
 const axios = require("axios");
 const dotenv = require("dotenv");
 const searchhash = require("searchhash");
+const which = require("which");
 
 const ui = require("./ui");
 const api = require("./api");
@@ -36,31 +35,30 @@ var config = {
   ui: "http://localhost:3001"
 };
 
-if (!which.sync("docker", { nothrow: true })) {
-  logger.error("Docker needs to be installed");
-  process.exit(1);
-}
-
-if (!which.sync("npx", { nothrow: true })) {
-  logger.error("Node.js needs to be installed");
-  process.exit(1);
-}
-
-if (!argv.file) {
-  if (fileExists.sync("./workflows/parallel.yml")) {
-    argv.file = "./workflows/parallel.yml";
-  } else {
-    logger.error("Please specify a workflow with --file");
+async function runner(flags) {
+  if (!which.sync("docker", { nothrow: true })) {
+    logger.error("Docker needs to be installed");
     process.exit(1);
   }
-}
 
-// MAIN
-async function main() {
-  await ui.start();
+  if (!which.sync("npx", { nothrow: true })) {
+    logger.error("Node.js needs to be installed");
+    process.exit(1);
+  }
+
+  if (!flags.file) {
+    if (fileExists.sync("./workflows/parallel.yml")) {
+      flags.file = "./workflows/parallel.yml";
+    } else {
+      logger.error("Please specify a workflow with --file");
+      process.exit(1);
+    }
+  }
+
+  // await ui.start();
   await api.start();
 
-  if (!argv.event) {
+  if (!flags.event) {
     logger.info("Collecting commit information from .git");
     let { stdout } = await execa.command("git config --get remote.origin.url");
     var event = {
@@ -82,15 +80,15 @@ async function main() {
       event.repository.ssh_url = stdout;
     }
   } else {
-    logger.info(`Using commit information from --event ${argv.event}`);
-    var event = require(`./${argv.event}`);
+    logger.info(`Using commit information from --event ${flags.event}`);
+    var event = require(`./${flags.event}`);
   }
 
   var run;
   var workflow;
 
   try {
-    var yamlWorkflow = yaml.safeLoad(fs.readFileSync(argv.file, "utf8"));
+    var yamlWorkflow = yaml.safeLoad(fs.readFileSync(flags.file, "utf8"));
 
     // check to see if you're referencing secrets but have no secrets.env file
     if (!fileExists.sync("./secrets.env")) {
@@ -107,7 +105,7 @@ async function main() {
       });
     }
   } catch (e) {
-    logger.error(`Failed to parse workflow yaml for ${argv.file}`);
+    logger.error(`Failed to parse workflow yaml for ${flags.file}`);
     logger.error(e);
     process.exit(1);
   }
@@ -136,12 +134,12 @@ async function main() {
     process.exit(1);
   }
 
-  if (argv.job) {
-    if (!(argv.job in run.data.jobs)) {
-      logger.error(`Could not find ${argv.job} in workflow`);
+  if (flags.job) {
+    if (!(flags.job in run.data.jobs)) {
+      logger.error(`Could not find ${flags.job} in workflow`);
       process.exit(1);
     }
-    runJob(run.data, secrets, run.data.jobs[argv.job], workflow.ports);
+    runJob(run.data, secrets, run.data.jobs[flags.job], workflow.ports);
   } else {
     // submit jobs with no dependencies
     for (let jobName in run.data.jobs) {
@@ -154,4 +152,4 @@ async function main() {
   open(`${config.ui}/runs/${run.data._id}`);
 }
 
-main();
+module.exports = runner;
