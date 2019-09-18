@@ -31,7 +31,7 @@ When you run the `wflow`, it spins up a lightweight API and UI server. It reads 
 
 ## Workflow Syntax
 
-[https://help.github.com/en/articles/workflow-syntax-for-github-actions]()
+https://help.github.com/en/articles/workflow-syntax-for-github-actions
 
 ### Currently supported
 
@@ -45,9 +45,7 @@ When you run the `wflow`, it spins up a lightweight API and UI server. It reads 
 
 Currently only Docker-based actions are supported. PRs welcome for JavaScript-based actions.
 
-
 ### Not yet supported
-https://help.github.com/en/articles/workflow-syntax-for-github-actions
 
 * `on`
 * `on.schedule`
