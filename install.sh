@@ -1,5 +1,5 @@
 #!/bin/bash
 
 npm i
-(cd cli; yarn; yarn link)
-(cd ui; yarn; yarn build)
+(cd cli; npx yarn; npm link)
+(cd ui; npx yarn; npx yarn build)
