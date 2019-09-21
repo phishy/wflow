@@ -10,7 +10,7 @@ app.use(
     verbose: false
   })
 );
-app.use(express.static("ui/build"));
+app.use(express.static(__dirname + "/ui/build"));
 
 module.exports = {
   start: () =>
