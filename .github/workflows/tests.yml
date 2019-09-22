@@ -1,0 +1,12 @@
+name: End To End Tests
+
+on: [push]
+
+jobs:
+  install:
+    name: "End To End Test"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - run: ./install.sh
+      - run: wflow
