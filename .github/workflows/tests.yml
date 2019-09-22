@@ -15,4 +15,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: sudo npm install -g wflow
-      - run: wflow
+      - run: wflow -f /usr/lib/node_modules/wflow/workflows/parallel.yml
