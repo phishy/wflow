@@ -14,5 +14,8 @@ jobs:
     name: "Test NPM Installation"
     runs-on: ubuntu-latest
     steps:
-      - run: sudo npm install -g wflow
-      - run: wflow -f /usr/lib/node_modules/wflow/workflows/parallel.yml
+      - run: |
+          sudo npm install -g wflow;
+          git clone https://github.com/phishy/wflow.git;
+          cd wflow;
+          wflow
