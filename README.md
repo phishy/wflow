@@ -9,9 +9,7 @@
 
 ## Install
 
-The following installs dependencies in `node_modules` and links `wflow` to work globally.
-
-`./install.sh`
+`npm install -g wflow`
 
 ## Usage
 
@@ -54,3 +52,8 @@ Currently only Docker-based actions are supported. PRs welcome for JavaScript-ba
 * `jobs.<job_id>.container`
 * `jobs.<job_id>.services`
 
+## Install for Development
+
+The following installs dependencies in `node_modules` and links `wflow` to work globally.
+
+`./install.sh`
