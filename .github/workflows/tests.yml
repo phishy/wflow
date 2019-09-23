@@ -3,6 +3,18 @@ name: End To End Tests
 on: [push]
 
 jobs:
+  jest:
+    name: "Jest"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - run: npx jest **/*.spec.js
+  prettier:
+    name: "Prettier"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - run: npx prettier --check **/*.js
   install:
     name: "Test Installation"
     runs-on: ubuntu-latest
