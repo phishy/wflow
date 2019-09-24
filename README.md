@@ -41,7 +41,7 @@ https://help.github.com/en/articles/workflow-syntax-for-github-actions
 * `jobs.<job_id>.runs-on` (ubuntu-latest only)
 * `jobs.<job_id>.steps`
 
-Currently only Docker-based actions are supported. PRs welcome for JavaScript-based actions.
+Currently, only Docker-based actions are supported. PRs welcome for JavaScript-based actions.
 
 ### Not yet supported
 
