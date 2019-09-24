@@ -7,7 +7,7 @@ const dotenv = require('dotenv');
 const fs = require('fs');
 const tempDirectory = require("temp-dir");
 
-const runJob = require("./lib/job");
+const runJob = require("./lib/runJob");
 
 var app = require("express")();
 var http = require("http").createServer(app);

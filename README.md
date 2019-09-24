@@ -2,6 +2,8 @@
 
 [![Join the chat at https://gitter.im/wflow-local/community](https://badges.gitter.im/wflow-local/community.svg)](https://gitter.im/wflow-local/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
+![Codecov](https://img.shields.io/codecov/c/github/phishy/wflow)
+
 ## Requirements
 
 * Docker
@@ -17,7 +19,7 @@
 
 Running that should give you a preview of how it works, however likely you'll want to specify a workflow file.
 
-Point wflow at a valid yaml file. You may also specify an event (a GitHub webhook payload). If you do not provide an event, it attempts to read from .git.
+Point wflow at a valid YAML file. You may also specify an event (a GitHub webhook payload). If you do not provide an event, it attempts to read from .git.
 
 `wflow --file build.yml --event event.json`
 
@@ -41,7 +43,7 @@ https://help.github.com/en/articles/workflow-syntax-for-github-actions
 * `jobs.<job_id>.runs-on` (ubuntu-latest only)
 * `jobs.<job_id>.steps`
 
-Currently only Docker-based actions are supported. PRs welcome for JavaScript-based actions.
+Currently, only Docker-based actions are supported. PRs welcome for JavaScript-based actions.
 
 ### Not yet supported
 
