@@ -9,6 +9,9 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - run: npx jest **/*.spec.js
+      - run: npx codecov -b $GITHUB_REF -t $CODECOV_TOKEN
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   prettier:
     name: "Prettier"
     runs-on: ubuntu-latest

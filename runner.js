@@ -17,7 +17,7 @@ const socket = require("socket.io-client");
 
 const ui = require("./ui");
 const api = require("./api");
-const runJob = require("./lib/job");
+const runJob = require("./lib/runJob");
 const Workflow = require("./lib/workflow");
 
 /**
@@ -119,6 +119,7 @@ async function runner(flags) {
   } else {
     logger.info(`Using commit information from --event ${flags.event}`);
     var event = require(`./${flags.event}`);
+    event.path = flags.event;
   }
 
   var run;
@@ -176,12 +177,22 @@ async function runner(flags) {
       logger.error(`Could not find ${flags.job} in workflow`);
       process.exit(1);
     }
-    runJob(run.data, secrets, run.data.jobs[flags.job], workflow.ports);
+    runJob({
+      run: run.data,
+      secrets: secrets,
+      job: run.data.jobs[jobName],
+      ports: workflow.ports
+    });
   } else {
     // submit jobs with no dependencies
     for (let jobName in run.data.jobs) {
       if (!("needs" in run.data.jobs[jobName])) {
-        runJob(run.data, secrets, run.data.jobs[jobName], workflow.ports);
+        runJob({
+          run: run.data,
+          secrets: secrets,
+          job: run.data.jobs[jobName],
+          ports: workflow.ports
+        });
       }
     }
   }
