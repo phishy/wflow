@@ -1,0 +1,11 @@
+name: My CI
+
+on: [push]
+
+jobs:
+
+  job1:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/setup-python
+    - run: python -v

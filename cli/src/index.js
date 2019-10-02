@@ -1,10 +1,10 @@
 const { Command, flags } = require("@oclif/command");
-const runner = require("../../runner");
+const wflow = require("../../wflow");
 
 class CliCommand extends Command {
   async run() {
     const { flags } = this.parse(CliCommand);
-    runner(flags);
+    wflow(flags);
   }
 }
 
